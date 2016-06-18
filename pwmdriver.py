@@ -11,9 +11,11 @@ Objectives:
 """
 
 from __future__ import division
+from __future__ import print_function
 import time
 import Adafruit_PCA9685
 import math
+import sys
 
 # TODO: Set rotational velocity
     
@@ -26,11 +28,10 @@ class ServoDriver:
         self.pulsePi = pulsePi
         self.pwm = Adafruit_PCA9685.PCA9685(address)
         self.pwm.set_pwm_freq(frequency)
-
+        
     def setAngle(self, angle, velocity=None):
-        """Sets servio to specified angle (in radians) at the given
+        """Sets servo to specified angle (in radians) at the given
         angular velocity (in radians per second)"""
-        # I know that pulsePi minus pulseZero is pulsePerDegree
         pulsePerRad = (self.pulsePi - self.pulseZero) / math.pi
         self.__set_servo_pulse(self.channel, self.pulseZero + angle * pulsePerRad)
         
@@ -38,18 +39,23 @@ class ServoDriver:
     def __set_servo_pulse(self, channel, pulse):
         pulse_length = 1000000
         pulse_length //= 60 # 60 Hz
-        print('{} units per period'.format(pulse_length))
+        #print('{} units per period'.format(pulse_length))
         pulse_length //= 4096 # 12 bits of resolution
-        print('{} units per bit'.format(pulse_length))
+        #print('{} units per bit'.format(pulse_length))
         pulse *= 1000
         pulse //= pulse_length
-        print(pulse)
+        #print(pulse)
+        
         self.pwm.set_pwm(channel, 0, int(pulse))
 
-def main():
-    """Test client"""
-    driver = ServoDriver(12)
-    print('Moving servo on channel 12, press Ctrl-C to quit...')
+############################# TEST CLIENTS #################################
+        
+def calibrate():
+    """Moves servo in 45 degree increments. If the servo moves differently, you may have to tweak parameters
+    such as pulseZero, pulsePi or frequency in the ServoDriver constructor."""
+    channel = int(sys.argv[2])
+    driver = ServoDriver(channel)
+    print('Moving servo on channel {}, press Ctrl-C to quit...'.format(channel))
     # PWM.set_pwm_freq(60)
     print("Zero...")
     driver.setAngle(0)
@@ -66,5 +72,20 @@ def main():
     print("180...")
     driver.setAngle(math.pi)
 
+def main():
+    """Test client"""
+    channel = int(sys.argv[1])
+    degrees = float(sys.argv[2])
+    driver = ServoDriver(channel)
+    print('Setting servo on channel {} to {} degrees, press Ctrl-C to quit...'.format(channel, degrees))
+    # PWM.set_pwm_freq(60)
+    driver.setAngle(math.radians(degrees))
+
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) < 3 or "-h" in sys.argv or "--help" in sys.argv:
+        print("Usage: python pwmdriver.py [--calibrate] CHANNEL ANGLE_IN_DEGREES")
+        sys.exit(0)
+    elif "-c" in sys.argv or "--calibrate" in sys.argv:
+        calibrate()
+    else:
+        main()
