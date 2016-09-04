@@ -21,7 +21,7 @@ import sys
     
 class ServoDriver:
 
-    def __init__(self, channel, address=0x40, frequency=60, pulseZero=0.6, pulsePi=2.55):
+    def __init__(self, channel, address=0x40, frequency=40, pulseZero=0.8, pulsePi=2.9):
         """Creates a driver with specified characteristics"""
         self.channel = channel
         self.pulseZero = pulseZero
@@ -38,7 +38,7 @@ class ServoDriver:
     # Helper function to make setting a servo pulse width simpler.
     def __set_servo_pulse(self, channel, pulse):
         pulse_length = 1000000
-        pulse_length //= 60 # 60 Hz
+        pulse_length //= 40 # 60 Hz
         #print('{} units per period'.format(pulse_length))
         pulse_length //= 4096 # 12 bits of resolution
         #print('{} units per bit'.format(pulse_length))
