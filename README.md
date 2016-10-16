@@ -8,7 +8,12 @@ using pulse-width modulation.
 The required Adafruit Python library can be found here: https://github.com/adafruit/Adafruit_Python_PCA9685
 
 To use the driver, simply create a new driver with the required channel (0-15 if you are using one HAT), address of the HAT (default is 0x40),
-PWM frequency in Hz (default is 60), pulse length for "zero" position in ms (default is 0.6) and pulse length for "180" position in ms (default is 2.55):
+PWM frequency in Hz (default is 60), pulse length for "-90" position  and pulse length for "180" position. The pulse lengths depend on the servo you are using; for a Hitec HS-485B, they would be 100 and 420.
 
-`driver = ServoDriver(12) # address, frequency, pulseZero and pulsePi are default`
-`driver.setAngle(math.pi/2)`
+**You should call `initialize()` before the first call of `moveTo`. This will move the servo to its initial position.**  
+
+The driver has rudimentary support for different rotational velocities (you can set a constant in the `moveTo` function to make the servo move faster or slower).
+
+    servo = Servo(13, 190, 440, 190)
+    servo.initialize()
+    servo.moveTo(toRadians(0))   
